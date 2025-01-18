@@ -141,8 +141,8 @@ LightingResult DoPointLight(Light light, float3 vertexToEye, float4 vertexPos, f
 	attenuation = 1;
 
 
-	result.Diffuse = DoDiffuse(light, vertexToLight, N) * attenuation;
-	result.Specular = DoSpecular(light, vertexToEye, LightDirectionToVertex, N) * attenuation;
+    result.Diffuse = DoDiffuse(light, vertexToLight, N) * attenuation;
+	//result.Specular = DoSpecular(light, vertexToEye, LightDirectionToVertex, N) * attenuation;
 
 	return result;
 }
@@ -163,12 +163,12 @@ LightingResult ComputeLighting(float4 vertexPos, float3 N)
 		
 		result = DoPointLight(Lights[i], vertexToEye, vertexPos, N);
 		
-		totalResult.Diffuse += result.Diffuse;
-		totalResult.Specular += result.Specular;
+        totalResult.Diffuse += result.Diffuse;
+		//totalResult.Specular += result.Specular;
 	}
 
-	totalResult.Diffuse = saturate(totalResult.Diffuse);
-	totalResult.Specular = saturate(totalResult.Specular);
+    totalResult.Diffuse = saturate(totalResult.Diffuse);
+	//totalResult.Specular = saturate(totalResult.Specular);
 
 	return totalResult;
 }
@@ -199,23 +199,36 @@ PS_INPUT VS( VS_INPUT input )
 
 float4 PS(PS_INPUT IN) : SV_TARGET
 {
-	LightingResult lit = ComputeLighting(IN.worldPos, normalize(IN.Norm));
+    //float4 ambient = { 0.1, 0.0, 0.0, 1.0 };
+    //float4 lightColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    //float3 lightPosition = (-1000.0f, 1000.0f, -1000.0f);
+    //float3 lightDirection = normalize(lightPosition - IN.Pos.xyz);
+
+    //float1 diffuse = saturate(dot(lightDirection, IN.Norm)) * lightColor;
+
+    //float4 output = float4(diffuse, diffuse, diffuse, 1);
+
+    ////float4 solidColor = float4( 1.0f, 1.0f, 0.0f, 1.0f );
+    ////output.color = solidColor;
+    //return output;
+    LightingResult lit = ComputeLighting(IN.worldPos, normalize(IN.Norm));
 
     float4 texColor = { IN.Colour.r, IN.Colour.g, IN.Colour.b, 1 };
 
-	float4 emissive = Material.Emissive;
-	float4 ambient = Material.Ambient * GlobalAmbient;
-	float4 diffuse = Material.Diffuse * lit.Diffuse;
-	float4 specular = Material.Specular * lit.Specular;
+    float4 emissive = Material.Emissive;
+    float4 ambient = Material.Ambient * GlobalAmbient;
+    float4 diffuse = Material.Diffuse * lit.Diffuse;
+    float4 specular = Material.Specular * lit.Specular;
 
 	//if (Material.UseTexture)
 	//{
 	//	texColor = txDiffuse.Sample(samLinear, IN.Tex);
 	//}
 
-	float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
+    float4 finalColor = (emissive + ambient + diffuse + specular) * texColor;
 
-	return finalColor;
+    return finalColor;
 }
 
 //--------------------------------------------------------------------------------------
